@@ -19,6 +19,7 @@ public class AdminController {
     @Resource
     private AdminService adminService;
 
+
     /**
      * 新增
      */

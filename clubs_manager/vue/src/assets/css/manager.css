@@ -130,8 +130,8 @@
 }
 
 .el-menu-item.is-active {
-    color: #f96332;
-    border-left: 3px solid #f96332;
+    color: #325df9;
+    border-left: 3px solid #325df9;
 }
 
 .el-menu--inline .el-menu-item {
@@ -139,7 +139,7 @@
 }
 
 .el-menu .is-active {
-    color: #f96332 !important;
+    color: #325df9 !important;
 }
 
 .el-submenu__title:hover {
@@ -153,7 +153,7 @@
 
 .el-menu-item:hover {
     background-color: #f9ece6 !important;
-    color: #f96332;
+    color: #325df9;
 }
 
 .el-submenu__icon-arrow {
@@ -182,9 +182,9 @@ th.el-table__cell {
 }
 
 .is-active .el-submenu__title {
-    color: #f96332 !important;
+    color: #325df9 !important;
 }
 
 .is-active i {
-    color: #f96332 !important;
+    color: #325df9 !important;
 }
