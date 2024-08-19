@@ -24,6 +24,26 @@ public class User extends Account implements Serializable {
     /** 角色身份 */
     private String level;
 
+    private String DepartmentName;
+
+    private Integer DepartmentId;
+
+    public Integer getDepartmentId() {
+        return DepartmentId;
+    }
+
+    public void setDepartmentId(Integer departmentId) {
+        DepartmentId = departmentId;
+    }
+
+    public String getDepartmentName() {
+        return DepartmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        DepartmentName = departmentName;
+    }
+
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
