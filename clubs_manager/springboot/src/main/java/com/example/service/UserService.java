@@ -86,24 +86,24 @@ public class UserService {
     /**
      * 分页查询
      */
-    public PageInfo<User> selectPage(User user, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<User> list = userMapper.selectAll(user);
-        return PageInfo.of(list);
-    }
 //    public PageInfo<User> selectPage(User user, Integer pageNum, Integer pageSize) {
 //        PageHelper.startPage(pageNum, pageSize);
 //        List<User> list = userMapper.selectAll(user);
-//        for (User dbUser : list) {
-//            if (ObjectUtil.isNotEmpty(dbUser.getLevel()) && LevelEnum.HEADER.level.equals(dbUser.getLevel())) {
-//                Department department = departmentMapper.selectByUserId(dbUser.getId());
-//                if (ObjectUtil.isNotEmpty(department)) {
-//                    dbUser.setDepartmentName(department.getName());
-//                }
-//            }
-//        }
 //        return PageInfo.of(list);
 //    }
+    public PageInfo<User> selectPage(User user, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> list = userMapper.selectAll(user);
+        for (User dbUser : list) {
+            if (ObjectUtil.isNotEmpty(dbUser.getLevel()) && LevelEnum.HEADER.level.equals(dbUser.getLevel())) {
+                Department department = departmentMapper.selectByUserId(dbUser.getId());
+                if (ObjectUtil.isNotEmpty(department)) {
+                    dbUser.setDepartmentName(department.getName());
+                }
+            }
+        }
+        return PageInfo.of(list);
+    }
     /**
      * 登录
      */
