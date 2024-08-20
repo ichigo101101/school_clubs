@@ -63,7 +63,11 @@ public class DepartmentService {
         if (ObjectUtil.isNotEmpty(department.getUserId())) {
             Department dbDepartment = departmentMapper.selectByUserId(department.getUserId());
             if (ObjectUtil.isNotEmpty(dbDepartment)) {
-                throw new CustomException(ResultCodeEnum.HEADER_ALREADY_ERROR);
+                User user = userMapper.selectById(department.getUserId());
+                if(!user.getDepartmentId().equals(department.getId())){
+                    throw new CustomException(ResultCodeEnum.HEADER_ALREADY_ERROR);
+                }
+
             }
         }
         departmentMapper.updateById(department);

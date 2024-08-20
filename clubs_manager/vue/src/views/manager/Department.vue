@@ -12,7 +12,7 @@
         </div>
 
         <div class="table">
-            <el-table :data="tableData" stripe  @selection-change="handleSelectionChange">
+            <el-table :data="tableData" stripe @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="id" label="序号" width="80" align="center" sortable></el-table-column>
                 <el-table-column label="社团logo">
@@ -30,7 +30,7 @@
                 <el-table-column label="操作" width="180" align="center">
                     <template v-slot="scope">
                         <el-button plain type="primary" @click="handleEdit(scope.row)" size="mini">编辑</el-button>
-                        <el-button plain type="danger" size="mini" @click=del(scope.row.id)>删除</el-button>
+                        <el-button plain type="danger" size="mini" @click="del(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -47,7 +47,6 @@
                 </el-pagination>
             </div>
         </div>
-
 
         <el-dialog title="信息" :visible.sync="fromVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
             <el-form label-width="100px" style="padding-right: 50px" :model="form" :rules="rules" ref="formRef">
@@ -66,11 +65,11 @@
                     <el-input v-model="form.name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item prop="description" label="社团介绍">
-                    <el-input type="textarea" :rows="5" v-model="form.description" autocomplete="off"></el-input>
+                    <div id="editor"></div>
                 </el-form-item>
                 <el-form-item prop="userId" label="社长姓名">
                     <el-select v-model="form.userId" placeholder="请选择社长" style="width: 100%">
-                        <el-option v-for="item in headerData" :label="item.name" :value="item.id"></el-option>
+                        <el-option v-for="item in headerData" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -79,19 +78,19 @@
                 <el-button type="primary" @click="save">确 定</el-button>
             </div>
         </el-dialog>
-
-
     </div>
 </template>
 
 <script>
+    import WangEditor from 'wangeditor';
+
     export default {
         name: "Department",
         data() {
             return {
-                tableData: [],  // 所有的数据
-                pageNum: 1,   // 当前的页码
-                pageSize: 10,  // 每页显示的个数
+                tableData: [],
+                pageNum: 1,
+                pageSize: 10,
                 total: 0,
                 name: null,
                 fromVisible: false,
@@ -99,92 +98,105 @@
                 user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
                 rules: {
                     name: [
-                        {required: true, message: '请输入社团名称', trigger: 'blur'},
+                        { required: true, message: '请输入社团名称', trigger: 'blur' },
                     ],
                     userId: [
-                        {required: true, message: '请选择社团社长', trigger: 'blur'},
+                        { required: true, message: '请选择社团社长', trigger: 'blur' },
                     ]
                 },
                 ids: [],
                 headerData: [],
-            }
+                editor: null,  // 添加 editor 属性
+            };
         },
         created() {
-            this.load(1)
-            this.loadHeaders()
+            this.load(1);
+            this.loadHeaders();
         },
         methods: {
             loadHeaders() {
                 this.$request.get('/user/getAllHeaders').then(res => {
                     if (res.code === '200') {
-                        this.headerData = res.data
+                        this.headerData = res.data;
                     } else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.msg);
                     }
-                })
+                });
             },
-            handleAdd() {   // 新增数据
-                this.form = {}  // 新增数据的时候清空数据
-                this.fromVisible = true   // 打开弹窗
+            initWangEditor(content) {
+                setTimeout(() => {
+                    if (!this.editor) {
+                        this.editor = new WangEditor('#editor');
+                        this.editor.config.placeholder = '请输入内容';
+                        this.editor.config.uploadImgServer = 'http://localhost:9090/files/wang/upload';
+                        this.editor.create();
+                    }
+                    this.editor.txt.html(content);
+                }, 0);
             },
-            handleEdit(row) {   // 编辑数据
-                this.form = JSON.parse(JSON.stringify(row))  // 给form对象赋值  注意要深拷贝数据
-                this.fromVisible = true   // 打开弹窗
+            handleAdd() {
+                this.form = {}; // 新增数据时清空数据
+                this.initWangEditor('');
+                this.fromVisible = true; // 打开弹窗
             },
-            save() {   // 保存按钮触发的逻辑  它会触发新增或者更新
+            handleEdit(row) {
+                this.form = JSON.parse(JSON.stringify(row)); // 深拷贝数据
+                this.initWangEditor(this.form.description || '');
+                this.fromVisible = true; // 打开弹窗
+            },
+            save() {
                 this.$refs.formRef.validate((valid) => {
                     if (valid) {
+                        this.form.description = this.editor.txt.html();
                         this.$request({
                             url: this.form.id ? '/department/update' : '/department/add',
                             method: this.form.id ? 'PUT' : 'POST',
                             data: this.form
                         }).then(res => {
-                            if (res.code === '200') {  // 表示成功保存
-                                this.$message.success('保存成功')
-                                this.load(1)
-                                this.fromVisible = false
+                            if (res.code === '200') {
+                                this.$message.success('保存成功');
+                                this.load(1);
+                                this.fromVisible = false;
                             } else {
-                                this.$message.error(res.msg)  // 弹出错误的信息
+                                this.$message.error(res.msg);
                             }
-                        })
+                        });
                     }
-                })
+                });
             },
-            del(id) {   // 单个删除
-                this.$confirm('您确定删除吗？', '确认删除', {type: "warning"}).then(response => {
+            del(id) {
+                this.$confirm('您确定删除吗？', '确认删除', { type: "warning" }).then(response => {
                     this.$request.delete('/department/delete/' + id).then(res => {
-                        if (res.code === '200') {   // 表示操作成功
-                            this.$message.success('操作成功')
-                            this.load(1)
+                        if (res.code === '200') {
+                            this.$message.success('操作成功');
+                            this.load(1);
                         } else {
-                            this.$message.error(res.msg)  // 弹出错误的信息
+                            this.$message.error(res.msg);
                         }
-                    })
-                }).catch(() => {
-                })
+                    });
+                }).catch(() => {});
             },
-            handleSelectionChange(rows) {   // 当前选中的所有的行数据
-                this.ids = rows.map(v => v.id)   //  [1,2]
+            handleSelectionChange(rows) {
+                this.ids = rows.map(v => v.id); // [1,2]
             },
-            delBatch() {   // 批量删除
+            delBatch() {
                 if (!this.ids.length) {
-                    this.$message.warning('请选择数据')
-                    return
+                    this.$message.warning('请选择数据');
+                    return;
                 }
-                this.$confirm('您确定批量删除这些数据吗？', '确认删除', {type: "warning"}).then(response => {
-                    this.$request.delete('/department/delete/batch', {data: this.ids}).then(res => {
-                        if (res.code === '200') {   // 表示操作成功
-                            this.$message.success('操作成功')
-                            this.load(1)
+                this.$confirm('您确定批量删除这些数据吗？', '确认删除', { type: "warning" }).then(response => {
+                    this.$request.delete('/department/delete/batch', { data: this.ids }).then(res => {
+                        if (res.code === '200') {
+                            this.$message.success('操作成功');
+                            this.load(1);
                         } else {
-                            this.$message.error(res.msg)  // 弹出错误的信息
+                            this.$message.error(res.msg);
                         }
-                    })
-                }).catch(() => {
-                })
+                    });
+                }).catch(() => {});
             },
-            load(pageNum) {  // 分页查询
-                if (pageNum) this.pageNum = pageNum
+            load(pageNum) {
+                if (pageNum) this.pageNum = pageNum;
                 this.$request.get('/department/selectPage', {
                     params: {
                         pageNum: this.pageNum,
@@ -192,26 +204,36 @@
                         name: this.name,
                     }
                 }).then(res => {
-                    this.tableData = res.data?.list
-                    this.total = res.data?.total
-                })
+                    this.tableData = res.data?.list;
+                    this.total = res.data?.total;
+                });
             },
             reset() {
-                this.name = null
-                this.load(1)
+                this.name = null;
+                this.load(1);
             },
             handleCurrentChange(pageNum) {
-                this.load(pageNum)
+                this.load(pageNum);
             },
             handleAvatarSuccess(response, file, fileList) {
                 // 把图片url保存到img里
-                this.form.img = response.data
+                this.form.img = response.data;
             },
         }
-
     }
 </script>
 
 <style scoped>
-
+    .search {
+        margin-bottom: 20px;
+    }
+    .operation {
+        margin-bottom: 20px;
+    }
+    .table {
+        margin-bottom: 20px;
+    }
+    .pagination {
+        margin-top: 20px;
+    }
 </style>
