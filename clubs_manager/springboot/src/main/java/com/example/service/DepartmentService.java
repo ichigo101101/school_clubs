@@ -1,5 +1,6 @@
 package com.example.service;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.example.common.enums.LevelEnum;
 import com.example.common.enums.ResultCodeEnum;
@@ -16,6 +17,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -36,6 +38,7 @@ public class DepartmentService {
                 throw new CustomException(ResultCodeEnum.HEADER_ALREADY_ERROR);
             }
         }
+        department.setTime(DateUtil.format(new Date(),"yyyy-MM-dd"));
         departmentMapper.insert(department);
 //        Department info = departmentMapper.selectByUserId(department.getUserId());
 //        // 往学生信息表里该学生的社团信息同步一条数据

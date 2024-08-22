@@ -13,6 +13,16 @@ public class Department implements Serializable {
     private Integer userId;
     private String userName;
 
+    private String time;
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
     public String getUserName() {
         return userName;
     }

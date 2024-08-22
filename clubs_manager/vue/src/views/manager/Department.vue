@@ -92,19 +92,6 @@
 <script>
     import WangEditor from 'wangeditor'
 
-    let editor
-    function initWangEditor(content) {	setTimeout(() => {
-        if (!editor) {
-            editor = new WangEditor('#editor')
-            editor.config.placeholder = '请输入内容'
-            editor.config.uploadFileName = 'file'
-            editor.config.uploadImgServer = 'http://localhost:9090/files/wang/upload'
-            editor.create()
-        }
-        editor.txt.html(content)
-    }, 0)
-    }
-
     export default {
         name: "Department",
         data() {
@@ -127,7 +114,7 @@
                 },
                 ids: [],
                 headerData: [],
-                editor: null,  // 添加 editor 属性
+                editor: null,
                 editorVisible: false,
                 viewData: null
             };
@@ -141,9 +128,14 @@
                 this.fromVisible = false
                 location.href = '/department'
             },
+            // cancel() {
+            //     this.fromVisible = false;
+            //     // 关闭弹窗，而不是跳转页面
+            //     // this.$router.push('/department'); // 如果使用 Vue Router 进行导航
+            // },
             viewEditor(description) {
-                this.viewData = description
-                this.editorVisible = true
+                this.viewData = description;
+                this.editorVisible = true;
             },
             loadHeaders() {
                 this.$request.get('/user/getAllHeaders').then(res => {
@@ -152,6 +144,9 @@
                     } else {
                         this.$message.error(res.msg);
                     }
+                }).catch(error => {
+                    console.error('请求失败', error);
+                    this.$message.error('请求失败');
                 });
             },
             initWangEditor(content) {
@@ -167,7 +162,7 @@
             },
             handleAdd() {
                 this.form = {}; // 新增数据时清空数据
-                initWangEditor('')
+                this.initWangEditor('');
                 this.fromVisible = true; // 打开弹窗
             },
             handleEdit(row) {
@@ -191,6 +186,9 @@
                             } else {
                                 this.$message.error(res.msg);
                             }
+                        }).catch(error => {
+                            console.error('保存失败', error);
+                            this.$message.error('保存失败');
                         });
                     }
                 });
@@ -204,6 +202,9 @@
                         } else {
                             this.$message.error(res.msg);
                         }
+                    }).catch(error => {
+                        console.error('删除失败', error);
+                        this.$message.error('删除失败');
                     });
                 }).catch(() => {});
             },
@@ -223,6 +224,9 @@
                         } else {
                             this.$message.error(res.msg);
                         }
+                    }).catch(error => {
+                        console.error('批量删除失败', error);
+                        this.$message.error('批量删除失败');
                     });
                 }).catch(() => {});
             },
@@ -235,13 +239,15 @@
                         name: this.name,
                     }
                 }).then(res => {
-                    if(res.code === '200'){
+                    if (res.code === '200') {
                         this.tableData = res.data?.list;
                         this.total = res.data?.total;
-                    }else{
-                        this.$message.error(res.msg)
+                    } else {
+                        this.$message.error(res.msg);
                     }
-
+                }).catch(error => {
+                    console.error('加载数据失败', error);
+                    this.$message.error('加载数据失败');
                 });
             },
             reset() {

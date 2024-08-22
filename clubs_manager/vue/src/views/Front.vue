@@ -94,5 +94,14 @@ export default {
 
 
 <style scoped>
-  @import "@/assets/css/front.css";
+    @import "@/assets/css/front.css";
+    .el-menu-item.is-active {
+        background-color: #c2a967 !important;
+        border-color: #40735d !important;
+        color: #fff !important;
+    }
+    .el-menu-item:hover {
+        background-color: #7cb79d !important;
+        color: #fff !important;
+    }
 </style>
