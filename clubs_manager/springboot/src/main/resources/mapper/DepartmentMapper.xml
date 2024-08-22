@@ -14,7 +14,7 @@
         left join user on department.user_id = user.id
         <where>
             <if test="id != null"> and id= #{id}</if>
-            <if test="name != null"> and name like concat('%', #{name}, '%')</if>
+            <if test="name != null"> and department.name like concat('%', #{name}, '%')</if>
             <if test="img != null"> and img= #{img}</if>
             <if test="description != null"> and description like concat('%', #{description}, '%')</if>
             <if test="userId != null"> and user_id= #{userId}</if>

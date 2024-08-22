@@ -26,15 +26,15 @@ public class User extends Account implements Serializable {
 
     private String DepartmentName;
 
-    private Integer DepartmentId;
+//    private Integer DepartmentId;
 
-    public Integer getDepartmentId() {
-        return DepartmentId;
-    }
-
-    public void setDepartmentId(Integer departmentId) {
-        DepartmentId = departmentId;
-    }
+//    public Integer getDepartmentId() {
+//        return DepartmentId;
+//    }
+//
+//    public void setDepartmentId(Integer departmentId) {
+//        DepartmentId = departmentId;
+//    }
 
     public String getDepartmentName() {
         return DepartmentName;

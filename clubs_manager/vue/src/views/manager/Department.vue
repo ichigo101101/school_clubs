@@ -24,7 +24,11 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="name" label="社团名称" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="description" label="社团介绍" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="description" label="社团介绍" show-overflow-tooltip>
+                    <template v-slot="scope">
+                        <el-button type="success" @click="viewEditor(scope.row.description)">查看介绍</el-button>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="userName" label="社长"></el-table-column>
 
                 <el-table-column label="操作" width="180" align="center">
@@ -48,7 +52,7 @@
             </div>
         </div>
 
-        <el-dialog title="信息" :visible.sync="fromVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
+        <el-dialog title="信息" :visible.sync="fromVisible" width="60%" :close-on-click-modal="false" destroy-on-close @close="cancel">
             <el-form label-width="100px" style="padding-right: 50px" :model="form" :rules="rules" ref="formRef">
                 <el-form-item label="社团logo">
                     <el-upload
@@ -78,11 +82,28 @@
                 <el-button type="primary" @click="save">确 定</el-button>
             </div>
         </el-dialog>
+
+        <el-dialog title="社团介绍" :visible.sync="editorVisible" width="50%">
+            <div v-html="this.viewData" class="w-e-text"></div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-    import WangEditor from 'wangeditor';
+    import WangEditor from 'wangeditor'
+
+    let editor
+    function initWangEditor(content) {	setTimeout(() => {
+        if (!editor) {
+            editor = new WangEditor('#editor')
+            editor.config.placeholder = '请输入内容'
+            editor.config.uploadFileName = 'file'
+            editor.config.uploadImgServer = 'http://localhost:9090/files/wang/upload'
+            editor.create()
+        }
+        editor.txt.html(content)
+    }, 0)
+    }
 
     export default {
         name: "Department",
@@ -107,6 +128,8 @@
                 ids: [],
                 headerData: [],
                 editor: null,  // 添加 editor 属性
+                editorVisible: false,
+                viewData: null
             };
         },
         created() {
@@ -114,6 +137,14 @@
             this.loadHeaders();
         },
         methods: {
+            cancel() {
+                this.fromVisible = false
+                location.href = '/department'
+            },
+            viewEditor(description) {
+                this.viewData = description
+                this.editorVisible = true
+            },
             loadHeaders() {
                 this.$request.get('/user/getAllHeaders').then(res => {
                     if (res.code === '200') {
@@ -136,7 +167,7 @@
             },
             handleAdd() {
                 this.form = {}; // 新增数据时清空数据
-                this.initWangEditor('');
+                initWangEditor('')
                 this.fromVisible = true; // 打开弹窗
             },
             handleEdit(row) {
@@ -204,8 +235,13 @@
                         name: this.name,
                     }
                 }).then(res => {
-                    this.tableData = res.data?.list;
-                    this.total = res.data?.total;
+                    if(res.code === '200'){
+                        this.tableData = res.data?.list;
+                        this.total = res.data?.total;
+                    }else{
+                        this.$message.error(res.msg)
+                    }
+
                 });
             },
             reset() {

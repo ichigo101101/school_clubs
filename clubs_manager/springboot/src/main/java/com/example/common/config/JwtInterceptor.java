@@ -60,6 +60,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                 account = userService.selectById(Integer.valueOf(userId));
             }
         } catch (Exception e) {
+//            e.printStackTrace();
             throw new CustomException(ResultCodeEnum.TOKEN_CHECK_ERROR);
         }
         if (ObjectUtil.isNull(account)) {

@@ -1,12 +1,16 @@
 package com.example.service;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.example.common.enums.LevelEnum;
 import com.example.common.enums.ResultCodeEnum;
+import com.example.common.enums.RoleEnum;
+import com.example.entity.Account;
 import com.example.entity.Department;
 import com.example.entity.User;
 import com.example.exception.CustomException;
 import com.example.mapper.DepartmentMapper;
 import com.example.mapper.UserMapper;
+import com.example.utils.TokenUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -63,8 +67,7 @@ public class DepartmentService {
         if (ObjectUtil.isNotEmpty(department.getUserId())) {
             Department dbDepartment = departmentMapper.selectByUserId(department.getUserId());
             if (ObjectUtil.isNotEmpty(dbDepartment)) {
-                User user = userMapper.selectById(department.getUserId());
-                if(!user.getDepartmentId().equals(department.getId())){
+                if(!dbDepartment.getName().equals(department.getName())){
                     throw new CustomException(ResultCodeEnum.HEADER_ALREADY_ERROR);
                 }
 
@@ -94,7 +97,20 @@ public class DepartmentService {
     /**
      * 分页查询
      */
+//    public PageInfo<Department> selectPage(Department department, Integer pageNum, Integer pageSize) {
+//        PageHelper.startPage(pageNum, pageSize);
+//        List<Department> list = departmentMapper.selectAll(department);
+//        return PageInfo.of(list);
+//    }
+
     public PageInfo<Department> selectPage(Department department, Integer pageNum, Integer pageSize) {
+        Account currentUser = TokenUtils.getCurrentUser();
+        if (RoleEnum.USER.name().equals(currentUser.getRole())) {
+            User user = userMapper.selectById(currentUser.getId());
+            if (LevelEnum.HEADER.level.equals(user.getLevel())) {
+                department.setUserId(user.getId());
+            }
+        }
         PageHelper.startPage(pageNum, pageSize);
         List<Department> list = departmentMapper.selectAll(department);
         return PageInfo.of(list);
