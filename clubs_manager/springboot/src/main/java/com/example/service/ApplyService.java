@@ -102,4 +102,24 @@ public class ApplyService {
         return PageInfo.of(list);
     }
 
+    public PageInfo<Apply> selectPage2(Apply apply, Integer pageNum, Integer pageSize) {
+        extracted(apply);
+        apply.setStatus(ApplyEnum.STATUS_APPLY_OK.status);
+        PageHelper.startPage(pageNum, pageSize);
+        List<Apply> list = applyMapper.selectAll(apply);
+        return PageInfo.of(list);
+    }
+
+    private void extracted(Apply apply) {
+        Account currentUser = TokenUtils.getCurrentUser();
+        if (RoleEnum.USER.name().equals(currentUser.getRole())) {
+            User user = userMapper.selectById(currentUser.getId());
+            if (LevelEnum.HEADER.level.equals(user.getLevel())) {
+                Department department = departmentMapper.selectByUserId(user.getId());
+                if (ObjectUtil.isNotEmpty(department)) {
+                    apply.setDepartmentId(department.getId());
+                }
+            }
+        }
+    }
 }

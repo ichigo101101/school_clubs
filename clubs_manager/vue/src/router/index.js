@@ -26,6 +26,7 @@ const routes = [
       { path: 'user', name: 'User', meta: { name: '学生信息' }, component: () => import('../views/manager/User') },
       { path: 'department', name: 'Department', meta: { name: '社团信息' }, component: () => import('../views/manager/Department') },
       { path: 'apply', name: 'Apply', meta: { name: '申请审批' }, component: () => import('../views/manager/Apply') },
+      { path: 'member', name: 'Member', meta: { name: '社团成员' }, component: () => import('../views/manager/Member') },
     ]
   },
   {
