@@ -52,7 +52,7 @@
             </template>
             <el-menu-item index="/admin">管理员信息</el-menu-item>
             <el-menu-item index="/user">学生信息</el-menu-item>
-            <el-menu-item index="/member">社团成员</el-menu-item>
+
 
 
           </el-submenu>
@@ -62,6 +62,8 @@
                     <i class="el-icon-menu"></i><span>日常管理</span>
                 </template>
                 <el-menu-item index="/apply">申请审批</el-menu-item>
+                <el-menu-item index="/member">社团成员</el-menu-item>
+
             </el-submenu>
         </el-menu>
       </div>

@@ -122,4 +122,10 @@ public class ApplyService {
             }
         }
     }
+
+    public List<Apply> selectMyApply(Apply apply) {
+        Account currentUser = TokenUtils.getCurrentUser();
+        apply.setUserId(currentUser.getId());
+        return applyMapper.selectAll(apply);
+    }
 }

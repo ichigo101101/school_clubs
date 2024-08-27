@@ -89,4 +89,11 @@ public class ApplyController {
         return Result.success(page);
     }
 
+    @GetMapping("/selectMyApply")
+    public Result selectMyApply(Apply apply) {
+        List<Apply> list = applyService.selectMyApply(apply);
+        return Result.success(list);
+    }
+
+
 }
