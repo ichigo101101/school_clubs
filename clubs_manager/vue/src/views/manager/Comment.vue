@@ -1,17 +1,20 @@
 <template>
     <div>
+        <!-- 搜索框 -->
         <div class="search">
             <el-input placeholder="请输入评论内容" style="width: 200px" v-model="content"></el-input>
             <el-button type="info" plain style="margin-left: 10px" @click="load(1)">查询</el-button>
             <el-button type="warning" plain style="margin-left: 10px" @click="reset">重置</el-button>
         </div>
 
+        <!-- 操作按钮 -->
         <div class="operation">
             <el-button type="danger" plain @click="delBatch">批量删除</el-button>
         </div>
 
+        <!-- 表格 -->
         <div class="table">
-            <el-table :data="tableData" stripe  @selection-change="handleSelectionChange">
+            <el-table :data="tableData" stripe @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="id" label="序号" width="80" align="center" sortable></el-table-column>
                 <el-table-column prop="content" label="评论内容" show-overflow-tooltip></el-table-column>
@@ -21,11 +24,12 @@
 
                 <el-table-column label="操作" width="180" align="center">
                     <template v-slot="scope">
-                        <el-button plain type="danger" size="mini" @click=del(scope.row.id)>删除</el-button>
+                        <el-button plain type="danger" size="mini" @click="del(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
 
+            <!-- 分页 -->
             <div class="pagination">
                 <el-pagination
                         background
@@ -38,7 +42,6 @@
                 </el-pagination>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -47,58 +50,55 @@
         name: "Comment",
         data() {
             return {
-                tableData: [],  // 所有的数据
-                pageNum: 1,   // 当前的页码
-                pageSize: 10,  // 每页显示的个数
-                total: 0,
-                content: null,
+                tableData: [],  // 表格数据
+                pageNum: 1,   // 当前页码
+                pageSize: 10,  // 每页显示条数
+                total: 0,  // 总记录数
+                content: null,  // 搜索内容
                 fromVisible: false,
                 form: {},
                 user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
-                rules: {
-                },
+                rules: {},
                 ids: []
-            }
+            };
         },
         created() {
-            this.load(1)
+            this.load(this.pageNum);  // 初始化加载数据
         },
         methods: {
-            del(id) {   // 单个删除
-                this.$confirm('您确定删除吗？', '确认删除', {type: "warning"}).then(response => {
-                    this.$request.delete('/comment/delete/' + id).then(res => {
-                        if (res.code === '200') {   // 表示操作成功
-                            this.$message.success('操作成功')
-                            this.load(1)
+            // 删除单条评论
+            del(id) {
+                this.$confirm('您确定删除吗？', '确认删除', { type: "warning" }).then(() => {
+                    this.$request.delete(`/comment/delete/${id}`).then(res => {
+                        if (res.code === '200') {
+                            this.$message.success('删除成功');
+                            this.load(this.pageNum);  // 删除后重新加载当前页数据
                         } else {
-                            this.$message.error(res.msg)  // 弹出错误的信息
+                            this.$message.error(res.msg);
                         }
-                    })
-                }).catch(() => {
-                })
+                    });
+                }).catch(() => {});
             },
-            handleSelectionChange(rows) {   // 当前选中的所有的行数据
-                this.ids = rows.map(v => v.id)   //  [1,2]
-            },
-            delBatch() {   // 批量删除
+            // 批量删除选中评论
+            delBatch() {
                 if (!this.ids.length) {
-                    this.$message.warning('请选择数据')
-                    return
+                    this.$message.warning('请选择数据');
+                    return;
                 }
-                this.$confirm('您确定批量删除这些数据吗？', '确认删除', {type: "warning"}).then(response => {
-                    this.$request.delete('/comment/delete/batch', {data: this.ids}).then(res => {
-                        if (res.code === '200') {   // 表示操作成功
-                            this.$message.success('操作成功')
-                            this.load(1)
+                this.$confirm('您确定批量删除这些数据吗？', '确认删除', { type: "warning" }).then(() => {
+                    this.$request.delete('/comment/delete/batch', { data: this.ids }).then(res => {
+                        if (res.code === '200') {
+                            this.$message.success('批量删除成功');
+                            this.load(this.pageNum);  // 删除后重新加载当前页数据
                         } else {
-                            this.$message.error(res.msg)  // 弹出错误的信息
+                            this.$message.error(res.msg);
                         }
-                    })
-                }).catch(() => {
-                })
+                    });
+                }).catch(() => {});
             },
-            load(pageNum) {  // 分页查询
-                if (pageNum) this.pageNum = pageNum
+            // 加载数据
+            load(pageNum) {
+                this.pageNum = pageNum;  // 更新当前页码
                 this.$request.get('/comment/selectPage', {
                     params: {
                         pageNum: this.pageNum,
@@ -106,22 +106,29 @@
                         content: this.content,
                     }
                 }).then(res => {
-                    this.tableData = res.data?.list
-                    this.total = res.data?.total
-                })
+                    this.tableData = res.data?.list || [];
+                    this.total = res.data?.total || 0;
+                }).catch(() => {
+                    this.$message.error('数据加载失败');
+                });
             },
+            // 重置搜索
             reset() {
-                this.content = null
-                this.load(1)
+                this.content = null;
+                this.load(this.pageNum);  // 重置后重新加载当前页数据
             },
+            // 页码改变时加载新页数据
             handleCurrentChange(pageNum) {
-                this.load(pageNum)
+                this.load(pageNum);
             },
+            // 处理选中项变化
+            handleSelectionChange(rows) {
+                this.ids = rows.map(v => v.id);
+            }
         }
-    }
-
+    };
 </script>
 
 <style scoped>
-
+    /* 添加必要的样式 */
 </style>

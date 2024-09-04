@@ -130,7 +130,7 @@
                 })
             },
             loadComment() {
-                this.$request.get('/comment/selectAll').then(res => {
+                this.$request.get('/comment/selectAll?departmentId=' + this.departmentId).then(res => {
                     if (res.code === '200') {
                         this.commentData = res.data
                     } else {

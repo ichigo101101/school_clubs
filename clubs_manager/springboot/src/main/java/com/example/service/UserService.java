@@ -128,6 +128,7 @@ public class UserService {
     public void register(Account account) {
         User user = new User();
         BeanUtils.copyProperties(account, user);
+        user.setLevel(LevelEnum.STUDENT.level);
         add(user);
     }
 

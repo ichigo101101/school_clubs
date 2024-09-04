@@ -43,6 +43,7 @@ const routes = [
       { path: 'departmentDetail', name: 'DepartmentDetail', meta: { name: '社团详情' }, component: () => import('../views/front/DepartmentDetail') },
       { path: 'activityDetail', name: 'ActivityDetail', meta: { name: '活动信息' }, component: () => import('../views/front/ActivityDetail') },
       { path: 'apply', name: 'Apply', meta: { name: '申请的社团' }, component: () => import('../views/front/Apply') },
+      { path: 'informationDetail', name: 'InformationDetail', meta: { name: '资讯信息' }, component: () => import('../views/front/InformationDetail') },
     ]
   },
   { path: '/login', name: 'Login', meta: { name: '登录' }, component: () => import('../views/Login.vue') },

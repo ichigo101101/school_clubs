@@ -1,15 +1,18 @@
 <template>
     <div class="main-content">
         <div style="width: 70%; margin: 20px auto">
+            <!-- 轮播图 -->
             <el-carousel height="300px" style="border-radius: 10px">
                 <el-carousel-item v-for="item in carousel" :key="item">
                     <img :src="item" alt="" style="width: 100%; height: 300px; border-radius: 10px">
                 </el-carousel-item>
             </el-carousel>
+            <!-- 社团活动和社团资讯 -->
             <div>
                 <el-row :gutter="10">
+                    <!-- 社团活动 -->
                     <el-col :span="12">
-                        <div style="margin: 20px 0 20px 0; width: 130px; background-color: #f16f44; height: 30px; line-height: 30px; text-align: center; font-size: 18px; color: white; font-weight: bold; border-radius: 20px">社团活动</div>
+                        <div style="margin: 20px 0; width: 130px; background-color: #f16f44; height: 30px; line-height: 30px; text-align: center; font-size: 18px; color: white; font-weight: bold; border-radius: 20px">社团活动</div>
                         <div v-for="item in activityData">
                             <el-row :gutter="5" style="margin-bottom: 10px">
                                 <el-col :span="4">
@@ -27,24 +30,42 @@
                                 </el-col>
                             </el-row>
                         </div>
-                        <div style="text-align: right">
-                            <div class="pagination">
-                                <el-pagination
-                                        background
-                                        @current-change="handleActivityCurrentChange"
-                                        :current-page="activityPageNum"
-                                        :page-size="activityPageSize"
-                                        layout="prev, next"
-                                        :total="activityTotal">
-                                </el-pagination>
-                            </div>
+                        <div class="pagination-wrapper">
+                            <el-pagination
+                                    background
+                                    @current-change="handleActivityCurrentChange"
+                                    :current-page="activityPageNum"
+                                    :page-size="activityPageSize"
+                                    layout="prev, next"
+                                    :total="activityTotal">
+                            </el-pagination>
                         </div>
                     </el-col>
+                    <!-- 社团资讯 -->
                     <el-col :span="12">
-
+                        <div style="margin: 20px 0; width: 130px; background-color: #f16f44; height: 30px; line-height: 30px; text-align: center; font-size: 18px; color: white; font-weight: bold; border-radius: 20px">社团资讯</div>
+                        <div v-for="item in informationData" class="information-item">
+                            <el-row :gutter="20" style="height: 36px;">
+                                <el-col :span="19">
+                                    <a href="#" @click="navTo('/front/informationDetail?id=' + item.id)">{{item.name}}</a>
+                                </el-col>
+                                <el-col :span="5" style="color: #8d8a8a;">{{item.time}}</el-col>
+                            </el-row>
+                        </div>
+                        <div class="pagination-wrapper">
+                            <el-pagination
+                                    background
+                                    @current-change="handleInformationCurrentChange"
+                                    :current-page="informationPageNum"
+                                    :page-size="informationPageSize"
+                                    layout="prev, next"
+                                    :total="informationTotal">
+                            </el-pagination>
+                        </div>
                     </el-col>
                 </el-row>
             </div>
+            <!-- 优秀社团 -->
             <div>
                 <div style="margin: 20px 0 0 0; width: 130px; background-color: #4498f1; height: 30px; line-height: 30px; text-align: center; font-size: 18px; color: white; font-weight: bold; border-radius: 20px">优秀社团</div>
                 <div style="margin-top: 15px">
@@ -57,14 +78,11 @@
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
 <script>
-
     export default {
-
         data() {
             return {
                 carousel: [
@@ -77,13 +95,17 @@
                 activityPageNum: 1,
                 activityPageSize: 3,
                 activityTotal: 0,
+                informationData: [],
+                informationPageNum: 1,
+                informationPageSize: 6,
+                informationTotal: 0,
             }
         },
         mounted() {
             this.loadDepartment()
             this.loadActivity()
+            this.loadInformation()
         },
-        // methods：本页面所有的点击事件或者其他函数定义区
         methods: {
             navTo(url) {
                 location.href = url
@@ -92,6 +114,22 @@
                 this.$request.get('/department/selectAll').then(res => {
                     if (res.code === '200') {
                         this.departmentData = res.data
+                    } else {
+                        this.$message.error(res.msg)
+                    }
+                })
+            },
+            loadInformation(pageNum) {
+                if (pageNum) this.informationPageNum = pageNum
+                this.$request.get('/information/selectPage2', {
+                    params: {
+                        pageNum: this.informationPageNum,
+                        pageSize: this.informationPageSize,
+                    }
+                }).then(res => {
+                    if (res.code === '200') {
+                        this.informationData = res.data?.list
+                        this.informationTotal = res.data?.total
                     } else {
                         this.$message.error(res.msg)
                     }
@@ -111,16 +149,24 @@
                     } else {
                         this.$message.error(res.msg)
                     }
-
                 })
             },
+            handleActivityCurrentChange(pageNum) {
+                this.loadActivity(pageNum)
+            },
+            handleInformationCurrentChange(pageNum) {
+                this.loadInformation(pageNum)
+            }
         }
     }
 </script>
+
 <style scoped>
-    .el-col-5{
-        width: 20%;
-        max-width: 20%;
-        padding: 10px 10px;
+    .pagination-wrapper {
+        text-align: right;
+        margin-top: 10px; /* Ensure proper spacing from content */
+    }
+    .information-item {
+        margin-bottom: 10px; /* Spacing between each item */
     }
 </style>
