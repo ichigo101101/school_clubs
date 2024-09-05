@@ -12,7 +12,7 @@
             <el-row :gutter="10">
                 <!-- 社团活动 -->
                 <el-col :span="12">
-                    <div class="section-title">社团活动</div>
+                    <div class="section-title activity-title">社团活动</div>
                     <div v-for="item in activityData" :key="item.id" class="activity-item">
                         <el-row :gutter="5" class="activity-row">
                             <el-col :span="4">
@@ -43,7 +43,7 @@
 
                 <!-- 社团资讯 -->
                 <el-col :span="12">
-                    <div class="section-title">社团资讯</div>
+                    <div class="section-title information-title">社团资讯</div>
                     <div v-for="item in informationData" :key="item.id" class="information-item">
                         <el-row :gutter="20">
                             <el-col :span="19">
@@ -184,9 +184,17 @@
         line-height: 30px;
         text-align: center;
         font-size: 18px;
-        color: white;
         font-weight: bold;
         border-radius: 20px;
+        color: white;
+    }
+
+    .activity-title {
+        background-color: #f16f44;
+    }
+
+    .information-title {
+        background-color: #f16f44;
     }
 
     .excellent {
