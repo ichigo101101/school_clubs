@@ -1,7 +1,8 @@
 <template>
     <div class="main-content">
         <div style="width: 50%; margin: 20px auto">
-            <div style="color: #333333; font-size: 20px; font-weight: 700">{{ departmentData.name }}：社团介绍，欢迎你的加入！
+            <div style="color: #333333; font-size: 20px; font-weight: 700">
+                {{ departmentData.name }}：社团介绍，欢迎你的加入！
                 <el-button type="primary" @click="init">申请加入</el-button>
             </div>
             <div style="margin-top: 10px; color: #767474">发布时间：{{ departmentData.time }}</div>
@@ -15,21 +16,23 @@
                 <el-button type="primary" @click="submit(content, 0)">提交</el-button>
             </div>
             <div style="margin-top: 30px; margin-bottom: 500px">
-                <el-row v-for="item in commentData" style="margin-bottom: 30px">
+                <el-row v-for="item in commentData" :key="item.id" style="margin-bottom: 30px">
                     <el-col :span="4">
                         <div style="display: flex; align-items: center;">
                             <img :src="item.userAvatar" alt="" style="width: 50px; height: 50px; border-radius: 50%">
-                            <div style="flex: 1; margin-left: 10px">{{item.userName}}</div>
+                            <div style="flex: 1; margin-left: 10px">{{ item.userName }}</div>
                         </div>
                     </el-col>
                     <el-col :span="20">
                         <div style="height: 50px; line-height: 50px">
                             <el-row>
-                                <el-col :span="18" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{item.content}}</el-col>
-                                <el-col :span="6" style="text-align: right">{{item.time}}</el-col>
+                                <el-col :span="18" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ item.content }}
+                                </el-col>
+                                <el-col :span="6" style="text-align: right">{{ item.time }}</el-col>
                             </el-row>
                         </div>
-                        <div v-for="child in item.children" style="margin-bottom: 5px">
+                        <div v-for="child in item.children" :key="child.id" style="margin-bottom: 5px">
                             <el-row>
                                 <el-col :span="5">
                                     <div style="display: flex; align-items: center;">
@@ -37,8 +40,10 @@
                                         <div style="flex: 1; margin-left: 10px">{{ child.userName }} 回复：</div>
                                     </div>
                                 </el-col>
-                                <el-col :span="13" style="height: 50px; line-height: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{child.content}}</el-col>
-                                <el-col :span="6" style="height: 50px; line-height: 50px; text-align: right">{{child.time}}</el-col>
+                                <el-col :span="13" style="height: 50px; line-height: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ child.content }}
+                                </el-col>
+                                <el-col :span="6" style="height: 50px; line-height: 50px; text-align: right">{{ child.time }}</el-col>
                             </el-row>
                         </div>
                         <div style="margin-top: 20px">
@@ -49,7 +54,7 @@
                 </el-row>
             </div>
         </div>
-        <el-dialog title="填写信息" :visible.sync="fromVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
+        <el-dialog title="填写信息" :visible.sync="fromVisible" width="40%" :close-on-click-modal="false">
             <el-form label-width="100px" style="padding-right: 50px" :model="form" :rules="rules" ref="formRef">
                 <el-form-item prop="description" label="申请说明">
                     <el-input v-model="description" autocomplete="off"></el-input>
@@ -64,81 +69,86 @@
 </template>
 
 <script>
-
     export default {
-
         data() {
-            let departmentId = this.$route.query.id
             return {
                 user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
                 departmentData: {},
-                departmentId: departmentId,
-                fromVisible:false,
-                description:null,
-                content: null,
+                departmentId: this.$route.query.id,
+                fromVisible: false,
+                description: '',
+                content: '',
                 commentData: []
-            }
+            };
         },
         mounted() {
-            this.loadDepartment()
+            this.loadDepartment();
+            this.loadComment(); // Load comments when component is mounted
         },
-        // methods：本页面所有的点击事件或者其他函数定义区
         methods: {
             loadDepartment() {
-                this.$request.get('/department/selectById/' + this.departmentId).then(res => {
+                this.$request.get(`/department/selectById/${this.departmentId}`).then(res => {
                     if (res.code === '200') {
-                        this.departmentData = res.data
+                        this.departmentData = res.data;
                     } else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.msg);
                     }
-                })
+                });
             },
-            init(){
-                this.fromVisible =true
+            init() {
+                this.fromVisible = true;
             },
-            save(){
+            save() {
                 let data = {
                     userId: this.user.id,
                     departmentId: this.departmentId,
                     description: this.description
-                }
-                this.$request.post('/apply/add',data).then(res => {
-                    if(res.code === '200') {
-                        this.$message.success('申请成功，等待社长审核，您可以在申请的社团查看审核进度')
-                        this.fromVisible =false
-                    }else {
-                        this.$message.error(res.msg)
+                };
+                this.$request.post('/apply/add', data).then(res => {
+                    if (res.code === '200') {
+                        this.$message.success('申请成功，等待社长审核，您可以在申请的社团查看审核进度');
+                        this.fromVisible = false;
+                    } else {
+                        this.$message.error(res.msg);
                     }
-
-                })
+                });
             },
             submit(content, parentId) {
                 let data = {
                     userId: this.user.id,
                     departmentId: this.departmentId,
                     content: content,
-                    parentId: parentId,
-                }
+                    parentId: parentId
+                };
                 this.$request.post('/comment/add', data).then(res => {
                     if (res.code === '200') {
-                        this.$message.success('评论成功')
-                        this.content = null
-                        this.loadComment()
+                        this.$message.success('评论成功');
+                        this.content = '';
+                        this.loadComment();
                     } else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.msg);
                     }
-                })
+                });
             },
             loadComment() {
-                this.$request.get('/comment/selectAll?departmentId=' + this.departmentId).then(res => {
+                this.$request.get(`/comment/selectAll?departmentId=${this.departmentId}`).then(res => {
                     if (res.code === '200') {
-                        this.commentData = res.data
+                        this.commentData = res.data;
                     } else {
-                        this.$message.error(res.msg)
+                        this.$message.error(res.msg);
                     }
-                })
-            },
-
+                });
+            }
         }
-    }
+    };
 </script>
+
+<style scoped>
+    /* 添加样式以优化布局和外观 */
+    .main-content {
+        padding: 20px;
+    }
+    .dialog-footer {
+        text-align: right;
+    }
+</style>

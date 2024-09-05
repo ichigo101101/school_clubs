@@ -18,9 +18,9 @@
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="id" label="序号" width="80" align="center" sortable></el-table-column>
                 <el-table-column prop="content" label="评论内容" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="time" label="评论时间"></el-table-column>
-                <el-table-column prop="userName" label="评论人"></el-table-column>
-                <el-table-column prop="departmentName" label="评论社团"></el-table-column>
+                <el-table-column prop="time" label="评论时间" align="center"></el-table-column>
+                <el-table-column prop="userName" label="评论人" align="center"></el-table-column>
+                <el-table-column prop="departmentName" label="评论社团" align="center"></el-table-column>
 
                 <el-table-column label="操作" width="180" align="center">
                     <template v-slot="scope">
@@ -51,15 +51,11 @@
         data() {
             return {
                 tableData: [],  // 表格数据
-                pageNum: 1,   // 当前页码
-                pageSize: 10,  // 每页显示条数
-                total: 0,  // 总记录数
-                content: null,  // 搜索内容
-                fromVisible: false,
-                form: {},
-                user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
-                rules: {},
-                ids: []
+                pageNum: 1,     // 当前页码
+                pageSize: 10,   // 每页显示条数
+                total: 0,       // 总记录数
+                content: '',    // 搜索内容，初始化为空字符串
+                ids: []         // 批量删除选中的 IDs
             };
         },
         created() {
@@ -74,15 +70,17 @@
                             this.$message.success('删除成功');
                             this.load(this.pageNum);  // 删除后重新加载当前页数据
                         } else {
-                            this.$message.error(res.msg);
+                            this.$message.error(res.msg || '删除失败');
                         }
+                    }).catch(() => {
+                        this.$message.error('删除失败，请重试');
                     });
                 }).catch(() => {});
             },
             // 批量删除选中评论
             delBatch() {
                 if (!this.ids.length) {
-                    this.$message.warning('请选择数据');
+                    this.$message.warning('请选择要删除的数据');
                     return;
                 }
                 this.$confirm('您确定批量删除这些数据吗？', '确认删除', { type: "warning" }).then(() => {
@@ -91,8 +89,10 @@
                             this.$message.success('批量删除成功');
                             this.load(this.pageNum);  // 删除后重新加载当前页数据
                         } else {
-                            this.$message.error(res.msg);
+                            this.$message.error(res.msg || '批量删除失败');
                         }
+                    }).catch(() => {
+                        this.$message.error('批量删除失败，请重试');
                     });
                 }).catch(() => {});
             },
@@ -109,12 +109,12 @@
                     this.tableData = res.data?.list || [];
                     this.total = res.data?.total || 0;
                 }).catch(() => {
-                    this.$message.error('数据加载失败');
+                    this.$message.error('数据加载失败，请重试');
                 });
             },
             // 重置搜索
             reset() {
-                this.content = null;
+                this.content = '';
                 this.load(this.pageNum);  // 重置后重新加载当前页数据
             },
             // 页码改变时加载新页数据
@@ -131,4 +131,12 @@
 
 <style scoped>
     /* 添加必要的样式 */
+    .table {
+        margin-top: 20px;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
 </style>

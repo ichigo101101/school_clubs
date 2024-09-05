@@ -2,7 +2,7 @@
     <div>
         <div class="search" v-if="user.role === 'ADMIN'">
             <el-select v-model="departmentId" placeholder="请选择社团" style="width: 200px">
-                <el-option v-for="item in departmentData" :label="item.name" :value="item.id"></el-option>
+                <el-option v-for="item in departmentData" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
             <el-button type="info" plain style="margin-left: 10px" @click="load(1)">查询</el-button>
             <el-button type="warning" plain style="margin-left: 10px" @click="reset">重置</el-button>

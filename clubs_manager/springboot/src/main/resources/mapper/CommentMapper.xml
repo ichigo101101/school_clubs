@@ -5,7 +5,7 @@
 <mapper namespace="com.example.mapper.CommentMapper">
 
     <sql id="Base_Column_List">
-        id,user_id,department_id,time,content,parent_id
+        id, user_id, department_id, time, content, parent_id
     </sql>
 
     <select id="selectAll" resultType="com.example.entity.Comment">
@@ -14,14 +14,14 @@
         left join user on comment.user_id = user.id
         left join department on comment.department_id = department.id
         <where>
-            <if test="id != null"> and id= #{id}</if>
-            <if test="content != null"> and content like concat('%', #{content}, '%')</if>
-            <if test="userId != null"> and user_id= #{userId}</if>
-            <if test="departmentId != null"> and department_id= #{departmentId}</if>
-            <if test="time != null"> and time= #{time}</if>
-            <if test="parentId != null"> and parent_id= #{parentId}</if>
+            <if test="id != null"> and comment.id = #{id}</if>
+            <if test="content != null"> and comment.content like concat('%', #{content}, '%')</if>
+            <if test="userId != null"> and comment.user_id = #{userId}</if>
+            <if test="departmentId != null"> and comment.department_id = #{departmentId}</if>
+            <if test="time != null"> and comment.time = #{time}</if>
+            <if test="parentId != null"> and comment.parent_id = #{parentId}</if>
         </where>
-        order by id desc
+        order by comment.id desc
     </select>
 
     <select id="selectById" resultType="com.example.entity.Comment">
@@ -33,10 +33,10 @@
 
     <delete id="deleteById">
         delete from comment
-        where  id = #{id}
+        where id = #{id}
     </delete>
 
-    <insert id="insert" parameterType="com.example.entity.Comment" useGeneratedKeys="true">
+    <insert id="insert" parameterType="com.example.entity.Comment" useGeneratedKeys="true" keyProperty="id">
         insert into comment
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
